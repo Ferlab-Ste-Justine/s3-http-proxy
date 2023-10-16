@@ -33,8 +33,9 @@ type ConfigServer struct {
 }
 
 type Config struct {
-	S3     ConfigS3
-	Server ConfigServer
+	S3             ConfigS3
+	Server         ConfigServer
+	DownloadPrefix string       `yaml:"download_prefix"`
 }
 
 func getConfigFilePath() string {

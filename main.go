@@ -77,9 +77,9 @@ func Serve(conf Config, doneCh <-chan struct{}) <-chan error {
 
 		if len(accounts) > 0 {
 			authorized := router.Group("/", gin.BasicAuth(accounts))
-			authorized.GET("/*path", handlers.GetS3File)
+			authorized.GET(fmt.Sprintf("%s/*path", conf.DownloadPrefix), handlers.GetS3File)
 		} else {
-			router.GET("/*path", handlers.GetS3File)
+			router.GET(fmt.Sprintf("%s/*path", conf.DownloadPrefix), handlers.GetS3File)
 		}
 
 		serverDoneCh := make(chan error)

@@ -19,7 +19,7 @@ type Handlers struct{
 func GetHandlers(conf ConfigS3, cli *minio.Client) Handlers {
 	
 	getS3File := func(c *gin.Context) {
-		fPath := c.Request.URL.Path
+		fPath := c.Param("path")
 		stat, statErr := cli.StatObject(context.Background(), conf.Bucket, fPath, minio.StatObjectOptions{})
 		if statErr != nil {
 			fmt.Println(fmt.Sprintf("Error occurred getting info on path %s on bucket %s: %s", fPath, conf.Bucket, statErr.Error()))			
