@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
-    - name: Publish Terraform Backend Etcd Image
+    - name: Publish S3 Http Proxy Image
       uses: Ferlab-Ste-Justine/action-push-image@v2
       with:
         username: ${{ secrets.FERLAB_DOCKER_HUB_USER }}
         password: ${{ secrets.FERLAB_DOCKER_HUB_TOKEN }}
-        image: ferlabcrsj/terraform-backend-etcd
+        image: ferlabcrsj/s3-http-proxy
         tag_format: "{sha}-{timestamp}"
