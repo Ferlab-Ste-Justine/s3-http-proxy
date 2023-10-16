@@ -10,13 +10,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ConfigS3 struct {
-	Endpoint  string
-	Region    string
-	Bucket    string
-	Tls       bool
+type S3Credentials struct {
 	AccessKey string `yaml:"access_key"`
 	SecretKey string `yaml:"secret_key"`
+}
+
+type ConfigS3 struct {
+	Endpoint    string
+	Region      string
+	Bucket      string
+	Tls         bool
+	Credentials string
+	AccessKey   string `yaml:"-"`
+	SecretKey   string `yaml:"-"`
 }
 
 type ConfigServerTls struct {
@@ -46,6 +52,22 @@ func getConfigFilePath() string {
 	return path
 }
 
+func getS3Credentials(path string) (S3Credentials, error) {
+	var a S3Credentials
+
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return a, errors.New(fmt.Sprintf("Error reading the credentials file: %s", err.Error()))
+	}
+
+	err = yaml.Unmarshal(b, &a)
+	if err != nil {
+		return a, errors.New(fmt.Sprintf("Error parsing the credentials file: %s", err.Error()))
+	}
+
+	return a, nil
+}
+
 func GetConfig() (Config, error) {
 	var c Config
 
@@ -56,6 +78,15 @@ func GetConfig() (Config, error) {
 	err = yaml.Unmarshal(b, &c)
 	if err != nil {
 		return c, errors.New(fmt.Sprintf("Error parsing the configuration file: %s", err.Error()))
+	}
+
+	if c.S3.Credentials != "" {
+		creds, credsErr := getS3Credentials(c.S3.Credentials)
+		if credsErr != nil {
+			return c, credsErr
+		}
+		c.S3.AccessKey = creds.AccessKey
+		c.S3.SecretKey = creds.SecretKey
 	}
 
 	return c, nil
