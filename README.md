@@ -16,8 +16,8 @@ s3:
   endpoint: <ip>:<port> formatted endpoint for your s3 api
   region: Region of your s3 bucket
   bucket: Your s3 bucket
-  tls: Whether the s3 endpoint should be access with https or not
-  credentials: Yaml file containing your s3 credentials. The file should contain the folllowing keys: access_key, secret_key
+  ca_cert: Path to a CA file used to authentify the S3 store server certificate. Can be omited if the S3 store server certificate has been signed by a well established CA.
+  credentials: Path to a yaml authentication file containing two keys: 'access_key' and 'secret_key'. These are the credentials the client will present to the S3 store.
 server:
   port: Post the server should be listening on
   address: Ip the server should bind on

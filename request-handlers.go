@@ -10,6 +10,8 @@ import (
   "strings"
   "strconv"
 
+  "github.com/Ferlab-Ste-Justine/s3-http-proxy/config"
+
   "github.com/gin-gonic/gin"
   "github.com/minio/minio-go/v7"
 )
@@ -61,10 +63,10 @@ type Handlers struct{
 	GetS3FileInfo gin.HandlerFunc
 }
 
-func GetHandlers(conf ConfigS3, cli *minio.Client) Handlers {
+func GetHandlers(conf config.ConfigS3, cli *minio.Client) Handlers {
 	
 	getS3File := func(c *gin.Context) {
-		fPath := c.Param("path")
+		fPath := strings.TrimPrefix(c.Param("path"), "/")
 		stat, statErr := cli.StatObject(context.Background(), conf.Bucket, fPath, minio.StatObjectOptions{})
 		if statErr != nil {
 			fmt.Println(fmt.Sprintf("Error occurred getting info on path %s on bucket %s: %s", fPath, conf.Bucket, statErr.Error()))			

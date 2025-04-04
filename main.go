@@ -9,14 +9,16 @@ import(
 	"syscall"
 	"time"
 
+	"github.com/Ferlab-Ste-Justine/s3-http-proxy/config"
+	"github.com/Ferlab-Ste-Justine/s3-http-proxy/s3"
+
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/gin-gonic/gin"
 )
 
 type Shutdown func() error
 
-func Serve(conf Config, doneCh <-chan struct{}) <-chan error {
+func Serve(conf config.Config, doneCh <-chan struct{}) <-chan error {
 	var cli *minio.Client
 	var server *http.Server
 	errCh := make(chan error)
@@ -41,11 +43,7 @@ func Serve(conf Config, doneCh <-chan struct{}) <-chan error {
 		}()
 
 		var err error
-		cli, err = minio.New(conf.S3.Endpoint, &minio.Options{
-			Creds:  credentials.NewStaticV4(conf.S3.AccessKey, conf.S3.SecretKey, ""),
-			Secure: conf.S3.Tls,
-			Region: conf.S3.Region,
-		})
+		cli, err = s3.Connect(conf.S3)
 	
 		if err != nil {
 			errCh <- err
@@ -61,7 +59,7 @@ func Serve(conf Config, doneCh <-chan struct{}) <-chan error {
 			gin.SetMode(gin.ReleaseMode)
 		}
 
-		accounts, accountsErr := getAccounts(conf)
+		accounts, accountsErr := config.GetAccounts(conf)
 		if accountsErr != nil {
 			errCh <- accountsErr
 			return	
@@ -113,7 +111,7 @@ func Serve(conf Config, doneCh <-chan struct{}) <-chan error {
 }
 
 func main() {
-	config, configErr := GetConfig()
+	config, configErr := config.GetConfig()
 	if configErr != nil {
 		fmt.Println(configErr.Error())
 		os.Exit(1)	

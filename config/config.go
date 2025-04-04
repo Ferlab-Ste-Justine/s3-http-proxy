@@ -1,10 +1,11 @@
-package main
+package config
 
 import (
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	yaml "gopkg.in/yaml.v2"
 	"github.com/gin-gonic/gin"
@@ -16,13 +17,15 @@ type S3Credentials struct {
 }
 
 type ConfigS3 struct {
-	Endpoint    string
-	Region      string
-	Bucket      string
-	Tls         bool
-	Credentials string
-	AccessKey   string `yaml:"-"`
-	SecretKey   string `yaml:"-"`
+	Endpoint          string
+	Region            string
+	Bucket            string
+	ConnectionTimeout time.Duration `yaml:"connection_timeout"`
+	RequestTimeout    time.Duration `yaml:"request_timeout"`
+	CaCert            string        `yaml:"ca_cert"`
+	Credentials       string
+	AccessKey         string        `yaml:"-"`
+	SecretKey         string        `yaml:"-"`
 }
 
 type ConfigServerTls struct {
@@ -92,7 +95,7 @@ func GetConfig() (Config, error) {
 	return c, nil
 }
 
-func getAccounts(conf Config) (gin.Accounts, error) {
+func GetAccounts(conf Config) (gin.Accounts, error) {
 	var accounts gin.Accounts
 	if conf.Server.BasicAuth == "" {
 		return accounts, nil
